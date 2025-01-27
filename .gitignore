@@ -2,3 +2,10 @@
 .env.docker
 __pycache__/
 .idea/
+user_service/app/alembic.ini
+user_service/app/migrations/versions/*.py
+user_service/app/migrations/versions/__pycache__/
+user_service/app/migrations/scripts/__pycache__/
+*.log
+*.bak
+.env

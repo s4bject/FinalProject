@@ -1,45 +1,39 @@
 from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from database.models import User, Company, Department
+from schemas.schemas import UserUpdate
 
-from database.models import User, Company, CompanyAdmin, Department
 
+async def update_user_info(db: AsyncSession, user: UserUpdate, user_id: int):
+    result = await db.execute(select(User).where(User.id == user_id))
+    current_user = result.scalars().first()
+    if not current_user:
+        raise HTTPException(status_code=404, detail="Пользователь не найден")
+    update_data = user.dict(exclude_unset=True)
+    for field in ["company_id", "manager_id", "department_id"]:
+        if field in update_data and update_data[field] == 0:
+            update_data[field] = None
+    for field, value in update_data.items():
+        setattr(current_user, field, value)
 
-async def user_registration(db: AsyncSession, email: str, full_name: str, password: str, invite_code: str):
-    result = await db.execute(select(User).where(User.email == email))
-    existing_user = result.scalars().first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email уже используется.")
-
-    company, department = None, None
-
-    if invite_code:
-        company_code, department_code = invite_code.split("-")
-
-        result = await db.execute(select(Company).where(Company.id == company_code))
-        company = result.scalars().first()
-        if not company:
-            raise HTTPException(status_code=400, detail="Неверный инвайт-код.")
-
-        result = await db.execute(
-            select(Department).where(Department.id == department_code, Department.company_id == company.id))
-        department = result.scalars().first()
-        if not department:
-            raise HTTPException(status_code=400, detail="Департамент не найден.")
-
-    hashed_password = password
-
-    new_user = User(
-        email=email,
-        hashed_password=hashed_password,
-        full_name=full_name,
-        company_id=company.id if company else None,
-        department_id=department.id if department else None,
-        manager_id=department.department_head_id if department else None,
-    )
-
-    db.add(new_user)
+    db.add(current_user)
     await db.commit()
-    await db.refresh(new_user)
+    await db.refresh(current_user)
 
-    return new_user
+    return current_user
+
+
+async def delete_user(db: AsyncSession, user_id: int):
+    result = await db.execute(select(User).where(User.id == user_id))
+    current_user = result.scalars().first()
+    if not current_user:
+        raise HTTPException(status_code=404, detail="Пользователь не найден")
+    try:
+        await db.delete(current_user)
+        await db.commit()
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=400, detail=f"Невозможно удалить пользователя из-за связанных данных {e}")
+
+    return

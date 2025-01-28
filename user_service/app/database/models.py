@@ -22,7 +22,6 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
     full_name = Column(String())
-    is_active = Column(Boolean, default=False)
     role = Column(SQLEnum(UserRole), default=UserRole.REGULAR)
     company_id = Column(Integer, ForeignKey("companies.id"))
     manager_id = Column(Integer, ForeignKey("users.id"))

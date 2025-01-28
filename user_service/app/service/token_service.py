@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import List
 
 import jwt
 from fastapi import HTTPException, Depends, Request
@@ -32,10 +33,10 @@ def decode_access_token(token: str):
         raise HTTPException(status_code=401, detail="Не удалось проверить токен")
 
 
-def role_required(role: str):
+def role_required(roles: List[str]):
     def role_check(token: str = Depends(get_token_from_cookies)):
         payload = decode_access_token(token)
-        if payload.get("role") != role:
+        if payload.get("role") not in roles:
             raise HTTPException(status_code=403, detail="Недостаточно прав для доступа")
         return payload
 

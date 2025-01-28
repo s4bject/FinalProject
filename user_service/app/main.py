@@ -4,38 +4,41 @@ import uvicorn
 from database.database import engine
 from api.routes import router
 from sqladmin import Admin, ModelView
-from database.models import User, Company, CompanyAdmin, Department, DepartmentAdmin
+from database.models import User, Company, Department, News
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
+
+ADMIN = os.environ.get('ADMIN_URL')
 app = FastAPI()
-admin = Admin(app, engine, base_url="/admin_ui")
+admin = Admin(app, engine, base_url=f"/{ADMIN}")
 
 
 class UserAdmin(ModelView, model=User):
-    column_list = [User.id, User.email, User.full_name, User.role]
+    column_list = ["id", "email", "full_name", "role", "company", "manager", "department"]
+    form_columns = ["email", "hashed_password", "full_name", "role", "company", "manager", "department"]
 
 
 class CompanyAdminView(ModelView, model=Company):
-    column_list = [Company.id, Company.name, Company.admin_id]
+    column_list = ["id", "name", "admin"]
+    form_columns = ["name", "admin"]
 
 
 class DepartmentAdminView(ModelView, model=Department):
-    column_list = [Department.id, Department.name,
-                   Department.department_head_id, Department.description, Department.company_id]
+    column_list = ["id", "name", "description", "company", "department_head"]
+    form_columns = ["name", "description", "company", "department_head"]
 
 
-class CompanyAdminAdmin(ModelView, model=CompanyAdmin):
-    column_list = [CompanyAdmin.user_id, CompanyAdmin.company_id]
-
-
-class DepartmentAdminAdmin(ModelView, model=DepartmentAdmin):
-    column_list = [DepartmentAdmin.user_id, DepartmentAdmin.department_id]
+class NewsAdmin(ModelView, model=News):
+    column_list = ["id", "head", "description", "date_create"]
+    form_columns = ["head", "description", "date_create"]
 
 
 admin.add_view(UserAdmin)
 admin.add_view(CompanyAdminView)
 admin.add_view(DepartmentAdminView)
-admin.add_view(CompanyAdminAdmin)
-admin.add_view(DepartmentAdminAdmin)
+admin.add_view(NewsAdmin)
 
 app.include_router(router)
 

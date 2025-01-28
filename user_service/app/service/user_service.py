@@ -1,7 +1,9 @@
+from datetime import date
+
 from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from database.models import User, Company, Department
+from database.models import User, Company, Department, News
 from schemas.schemas import UserUpdate
 
 
@@ -37,3 +39,24 @@ async def delete_user(db: AsyncSession, user_id: int):
         raise HTTPException(status_code=400, detail=f"Невозможно удалить пользователя из-за связанных данных {e}")
 
     return
+
+
+async def get_news(db: AsyncSession):
+    query = select(News)
+    result = await db.execute(query)
+    news_items = result.scalars().all()
+    return news_items
+
+
+async def post_news(db: AsyncSession, head: str, text: str):
+    curr_date = date.today()
+    new_news = News(
+        head=head,
+        description=text,
+        date_create=curr_date
+    )
+    db.add(new_news)
+    await db.commit()
+    await db.refresh(new_news)
+
+    return new_news

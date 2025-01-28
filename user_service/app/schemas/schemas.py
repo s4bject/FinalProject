@@ -1,4 +1,6 @@
-from pydantic import BaseModel, EmailStr, Field
+from datetime import date
+
+from pydantic import BaseModel, EmailStr, Field, constr
 from enum import Enum
 from typing import Optional
 
@@ -27,6 +29,16 @@ class UserResponse(BaseModel):
     company_id: Optional[int] = None
     manager_id: Optional[int] = None
     department_id: Optional[int] = None
+
+    class Config:
+        from_attributes = True
+
+
+class NewsResponse(BaseModel):
+    id: int
+    head: constr(max_length=250)
+    description: str
+    date_create: date
 
     class Config:
         from_attributes = True

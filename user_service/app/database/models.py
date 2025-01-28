@@ -1,9 +1,9 @@
 from enum import Enum
 from sqlalchemy import (
-    Column, Integer, String, Boolean,
+    Column, Date, Integer, String, Boolean,
     ForeignKey, Enum as SQLEnum, Text
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped
 
 from .database import Base
 
@@ -27,21 +27,64 @@ class User(Base):
     manager_id = Column(Integer, ForeignKey("users.id"))
     department_id = Column(Integer, ForeignKey("departments.id"))
 
+    company = relationship(
+        "Company",
+        back_populates="users",
+        foreign_keys=[company_id]
+    )
+    department = relationship(
+        "Department",
+        back_populates="users",
+        foreign_keys=[department_id]
+    )
+    manager = relationship(
+        "User",
+        remote_side=[id],
+        back_populates="subordinates",
+        foreign_keys=[manager_id]
+    )
+    subordinates = relationship("User", back_populates="manager")
+    administered_company = relationship(
+        "Company",
+        back_populates="admin",
+        foreign_keys="Company.admin_id",
+        uselist=False
+    )
+    administered_departments = relationship(
+        "Department",
+        back_populates="department_head",
+        foreign_keys="Department.department_head_id"
+    )
+
+    def __repr__(self):
+        return f"<User {self.id}: {self.email}, {self.full_name}>"
+
 
 class Company(Base):
     __tablename__ = "companies"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), unique=True, nullable=False)
-
     admin_id = Column(Integer, ForeignKey("users.id"))
 
+    users = relationship(
+        "User",
+        back_populates="company",
+        foreign_keys="User.company_id"
+    )
+    departments = relationship(
+        "Department",
+        back_populates="company",
+        cascade="all, delete-orphan"
+    )
+    admin = relationship(
+        "User",
+        back_populates="administered_company",
+        foreign_keys=[admin_id]
+    )
 
-class CompanyAdmin(Base):
-    __tablename__ = "company_admins"
-
-    user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
-    company_id = Column(Integer, ForeignKey("companies.id"), primary_key=True)
+    def __repr__(self):
+        return f"<Company {self.id}: {self.name}. Admin - {self.admin}>"
 
 
 class Department(Base):
@@ -53,9 +96,30 @@ class Department(Base):
     company_id = Column(Integer, ForeignKey("companies.id"))
     department_head_id = Column(Integer, ForeignKey("users.id"))
 
+    company = relationship(
+        "Company",
+        back_populates="departments",
+        foreign_keys=[company_id]
+    )
+    users = relationship(
+        "User",
+        back_populates="department",
+        foreign_keys="User.department_id"
+    )
+    department_head = relationship(
+        "User",
+        back_populates="administered_departments",
+        foreign_keys=[department_head_id]
+    )
 
-class DepartmentAdmin(Base):
-    __tablename__ = "department_admins"
+    def __repr__(self):
+        return f"<Department {self.id}: {self.name} (Company {self.company_id} Admin - {self.department_head})>"
 
-    user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
-    department_id = Column(Integer, ForeignKey("departments.id"), primary_key=True)
+
+class News(Base):
+    __tablename__ = "news"
+
+    id = Column(Integer, primary_key=True, index=True)
+    head = Column(String(250))
+    description = Column(Text)
+    date_create = Column(Date)

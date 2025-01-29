@@ -51,7 +51,7 @@ async def admin_dashboard():
     return RedirectResponse(url=f"/{ADMIN}")
 
 
-@router.post("/update_user/{id}", dependencies=[Depends(role_required(["super_admin", "company_admin"]))])
+@router.post("/update_user/", dependencies=[Depends(role_required(["super_admin", "company_admin"]))])
 async def update_user(
         user: UserUpdate,
         user_id: int,
@@ -61,7 +61,7 @@ async def update_user(
     return {"message": "Пользователь успешно обновлен"}
 
 
-@router.delete("/delete_user/{id}", dependencies=[Depends(role_required(["super_admin"]))])
+@router.delete("/delete_user/", dependencies=[Depends(role_required(["super_admin"]))])
 async def delete_user(
         user_id: int,
         db: AsyncSession = Depends(get_db),

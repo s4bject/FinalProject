@@ -46,12 +46,12 @@ async def login_user(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.get("/admin", dependencies=[Depends(role_required(["super_admin", "company_admin"]))])
+@router.get("/admin", dependencies=[Depends(role_required(["super_admin"]))])
 async def admin_dashboard():
     return RedirectResponse(url=f"/{ADMIN}")
 
 
-@router.post("/update_user/{id}", dependencies=[Depends(role_required("super_admin"))])
+@router.post("/update_user/{id}", dependencies=[Depends(role_required(["super_admin", "company_admin"]))])
 async def update_user(
         user: UserUpdate,
         user_id: int,
@@ -61,16 +61,17 @@ async def update_user(
     return {"message": "Пользователь успешно обновлен"}
 
 
-@router.delete("/delete_user/{id}", dependencies=[Depends(role_required("super_admin"))])
+@router.delete("/delete_user/{id}", dependencies=[Depends(role_required(["super_admin"]))])
 async def delete_user(
         user_id: int,
         db: AsyncSession = Depends(get_db),
 ):
+    #добавить логику удаления задач
     await delete_user(db, user_id)
     return {"message": "Пользователь успешно обновлен"}
 
 
-@router.post("/news", response_model=NewsResponse)
+@router.post("/news", response_model=NewsResponse, dependencies=[Depends(role_required(["super_admin"]))])
 async def get_all_news(text: str, db: AsyncSession = Depends(get_db),
                        head=Annotated[str, Field(max_length=250)]):
     result = await post_news(db, head, text)
@@ -82,3 +83,4 @@ async def get_all_news(db: AsyncSession = Depends(get_db)):
     result = await get_news(db)
     news = [NewsResponse.from_orm(news) for news in result]
     return news
+

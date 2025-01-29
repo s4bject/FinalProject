@@ -84,7 +84,7 @@ class Company(Base):
     )
 
     def __repr__(self):
-        return f"<Company {self.id}: {self.name}. Admin - {self.admin}>"
+        return f"<Company {self.id}: {self.name}. Admin - {self.admin_id}>"
 
 
 class Department(Base):
@@ -113,7 +113,7 @@ class Department(Base):
     )
 
     def __repr__(self):
-        return f"<Department {self.id}: {self.name} (Company {self.company_id} Admin - {self.department_head})>"
+        return f"<Department {self.id}: {self.name} (Company {self.company_id} Admin - {self.department_head_id})>"
 
 
 class News(Base):

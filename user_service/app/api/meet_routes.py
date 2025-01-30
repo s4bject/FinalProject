@@ -30,7 +30,7 @@ async def delete_meet(meet_id: int):
     return response.json()
 
 
-@router.post("/external_update_meet")
+@router.post("/external_update_meet", dependencies=[Depends(role_required(["super_admin", "company_admin"]))])
 async def external_update_meet(meet_data: ExternalMeetUpdateRequest):
     url = f"{URL}/update_meet/{meet_data.meet_id}"
     json_data = meet_data.model_dump()

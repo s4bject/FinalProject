@@ -42,3 +42,10 @@ class NewsResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ExternalMeetUpdateRequest(BaseModel):
+    meet_id: int
+    name: str
+    date: str
+    new_participants: list[int]

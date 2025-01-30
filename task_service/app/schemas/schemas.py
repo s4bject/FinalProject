@@ -11,6 +11,7 @@ class Grade(str, Enum):
 
 
 class TaskResponse(BaseModel):
+    id: int
     task: str
     worker_id: Optional[int] = None
     task_manager_id: Optional[int] = None
@@ -38,7 +39,6 @@ class TaskUpdateAdmin(BaseModel):
     grade: Optional[Grade] = None
     deadline: date
 
-
     class Config:
         from_attributes = True
 
@@ -51,6 +51,7 @@ class MeetParticipantResponse(BaseModel):
 
 
 class MeetResponse(BaseModel):
+    id: int
     name: str
     date: date
     duration: int
@@ -59,3 +60,9 @@ class MeetResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class MeetUpdateRequest(BaseModel):
+    name: str
+    date: date
+    new_participants: list[int]

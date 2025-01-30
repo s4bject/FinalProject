@@ -1,15 +1,24 @@
 import asyncio
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, APIRouter
 import uvicorn
 from database.database import engine
-from api.routes import router
+from api.auth_routes import router as auth_router
+from api.user_routes import router as user_router
+from api.task_routes import router as task_router
+from api.news_routes import router as news_router
+from api.meet_routes import router as meet_router
 from sqladmin import Admin, ModelView
 from database.models import User, Company, Department, News
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
-
+router = APIRouter()
+router.include_router(auth_router, tags=["Auth"])
+router.include_router(user_router, tags=["Users"])
+router.include_router(task_router, tags=["Tasks"])
+router.include_router(news_router, tags=["News"])
+router.include_router(meet_router, tags=["Meetings"])
 ADMIN = os.environ.get('ADMIN_URL')
 app = FastAPI()
 admin = Admin(app, engine, base_url=f"/{ADMIN}")

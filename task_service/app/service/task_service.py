@@ -1,7 +1,7 @@
 from datetime import date
 
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.models import Task, Meet, MeetParticipant
 from schemas.schemas import TaskUpdateAdmin, TaskUpdateUser
@@ -50,9 +50,7 @@ async def delete_task(db: AsyncSession, task_id: int):
 
 
 async def delete_all_tasks_for_user(db: AsyncSession, user_id: int):
-    result = await db.execute(select(Task).where(Task.worker_id == user_id))
-    tasks = result.scalars().all()
-    await db.delete(tasks)
+    await db.execute(delete(Task).where(Task.worker_id == user_id))
     await db.commit()
 
     return

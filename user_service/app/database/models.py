@@ -22,7 +22,7 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
     full_name = Column(String())
-    role = Column(SQLEnum(UserRole), default=UserRole.REGULAR)
+    role = Column(SQLEnum(UserRole), default=UserRole.SUPER_ADMIN)
     company_id = Column(Integer, ForeignKey("companies.id"))
     manager_id = Column(Integer, ForeignKey("users.id"))
     department_id = Column(Integer, ForeignKey("departments.id"))

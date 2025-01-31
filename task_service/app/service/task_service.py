@@ -4,7 +4,6 @@ from fastapi import HTTPException
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.models import Task, Meet, MeetParticipant
-from schemas.schemas import TaskUpdateAdmin, TaskUpdateUser
 
 
 async def get_task(db: AsyncSession, user_id: int):

@@ -1,6 +1,3 @@
-from datetime import datetime, timedelta
-
-import jwt
 from werkzeug.security import generate_password_hash, check_password_hash
 from fastapi import HTTPException
 from sqlalchemy import select
@@ -19,13 +16,13 @@ async def user_registration(db: AsyncSession, email: str, full_name: str, passwo
     if invite_code:
         company_code, department_code = invite_code.split("-")
 
-        result = await db.execute(select(Company).where(Company.id == company_code))
+        result = await db.execute(select(Company).where(Company.id == int(company_code)))
         company = result.scalars().first()
         if not company:
             raise HTTPException(status_code=400, detail="Неверный инвайт-код.")
 
         result = await db.execute(
-            select(Department).where(Department.id == department_code, Department.company_id == company.id))
+            select(Department).where(Department.id == int(department_code), Department.company_id == int(company.id)))
         department = result.scalars().first()
         if not department:
             raise HTTPException(status_code=400, detail="Департамент не найден.")

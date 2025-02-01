@@ -4,11 +4,13 @@ Cистема управления и контроля бизнеса, на ос
 ## Инструкция запуска каждого микросервиса:
 ### Общее
 Установите зависимости из `requirements.txt`:
+
     ```bash
     pip install -r requirements.txt
     ```
 Настроить .env файлы.
 В директории каждого микросервиса выполнить миграции Alembic
+
     ```bash
     alembic revision --autogenerate -m "init" 
     alembic upgrade head

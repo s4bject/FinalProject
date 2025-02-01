@@ -5,25 +5,25 @@ Cистема управления и контроля бизнеса, на ос
 ### Общее
 Установите зависимости из `requirements.txt`:
 
-    ```bash
+
     pip install -r requirements.txt
-    ```
+
 Настроить .env файлы.
 В директории каждого микросервиса выполнить миграции Alembic
 
-    ```bash
+
     alembic revision --autogenerate -m "init" 
     alembic upgrade head
-    ```
+
 ### 1. user_service (сервис пользователей)
 
-    ```bash
+
     uvicorn main:app --reload 
-    ```
+
 ### 2. task_service (сервис задач)
-    ```bash
+
     puvicorn main:app --port 8001 --reload 
-    ```
+
 
 
 ## Документация
